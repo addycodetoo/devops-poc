@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline with Docker Hub
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '22'  
+        node-version: '22'
     
     - name: Install dependencies
       run: npm install
@@ -24,7 +24,7 @@ jobs:
     - name: Run tests
       run: npm test
 
-  build-and-deploy:
+  build-and-push-to-dockerhub:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -41,3 +41,15 @@ jobs:
         sleep 5
         curl -f http://localhost:3000/health
         docker stop test-app
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker tag devops-poc-app ${{ secrets.DOCKERHUB_USERNAME }}/devops-poc:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-poc:latest
+        echo "Image pushed to Docker Hub: ${{ secrets.DOCKERHUB_USERNAME }}/devops-poc:latest"

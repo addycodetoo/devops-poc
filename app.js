@@ -10,6 +10,10 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+app.get('/', (req, res) => {
+    res.send('Hello! This version is automatically built and pushed to Docker Hub!');
+});
+
 app.listen(PORT, () => {
     console.log(`Microservice running on port ${PORT}`);
 });
